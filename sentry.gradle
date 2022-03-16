@@ -34,8 +34,9 @@ gradle.projectsEvaluated {
     // separately we then hook into the bundle task of react native to inject
     // sourcemap generation parameters.  In case for whatever reason no release
     // was found for the asset folder we just bail.
-    def bundleTasks = tasks.findAll { task -> task.name.startsWith("bundle") && task.name.endsWith("JsAndAssets") && !task.name.contains("Debug") && task.enabled }
+    def bundleTasks = tasks.findAll { task -> println task; return task.name.startsWith("bundle") && task.name.endsWith("JsAndAssets") && !task.name.contains("Debug") && task.enabled }
     bundleTasks.each { bundleTask ->
+        println bundleTask
         def shouldCleanUp
         def sourcemapOutput
         def bundleOutput
@@ -169,6 +170,9 @@ gradle.projectsEvaluated {
         // due to chaining the last value of previousCliTask will be the final
         // upload task, after which the cleanup can be done
         previousCliTask.configure { finalizedBy cliCleanUpTask }
+
+        println cliCleanUpTask
+        tasks.matching { task -> println "a: ${task}" }.each { task -> println "b: ${task}" }
     }
 }
 
