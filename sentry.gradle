@@ -76,7 +76,7 @@ gradle.projectsEvaluated {
           try { tasks.named(nameCliTask); return } catch (Exception e) {}
 
           /** Upload source map file to the sentry server via CLI call. */
-          def cliTask = tasks.create(nameCliTask, Exec) {
+          def cliTask = tasks.register(nameCliTask, Exec) {
               description = "upload debug symbols to sentry"
               group = 'sentry.io'
 
@@ -147,7 +147,7 @@ gradle.projectsEvaluated {
           // chain the upload tasks so they run sequentially in order to run
           // the cliCleanUpTask after the final upload task is run
           if (previousCliTask != null) {
-            previousCliTask.finalizedBy cliTask
+            previousCliTask.configure { finalizedBy cliTask.name }
           } else {
             bundleTask.finalizedBy cliTask
           }
@@ -155,19 +155,20 @@ gradle.projectsEvaluated {
         }
 
         /** Delete sourcemap files */
-        def cliCleanUpTask = tasks.create(name: nameCleanup, type: Delete) {
+        def cliCleanUpTask = tasks.register(nameCleanup, Delete) {
             description = "clean up extra sourcemap"
             group = 'sentry.io'
 
             delete sourcemapOutput
             delete "$buildDir/intermediates/assets/release/index.android.bundle.map" // react native default bundle dir
+
+            // register clean task extension
+            onlyIf { shouldCleanUp }
         }
 
-        // register clean task extension
-        cliCleanUpTask.onlyIf { shouldCleanUp }
         // due to chaining the last value of previousCliTask will be the final
         // upload task, after which the cleanup can be done
-        previousCliTask.finalizedBy cliCleanUpTask
+        previousCliTask.configure { finalizedBy cliCleanUpTask.name }
     }
 }
 
