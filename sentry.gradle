@@ -147,7 +147,7 @@ gradle.projectsEvaluated {
           // chain the upload tasks so they run sequentially in order to run
           // the cliCleanUpTask after the final upload task is run
           if (previousCliTask != null) {
-            previousCliTask.configure { finalizedBy cliTask.name }
+            previousCliTask.configure { finalizedBy cliTask }
           } else {
             bundleTask.finalizedBy cliTask
           }
@@ -168,7 +168,7 @@ gradle.projectsEvaluated {
 
         // due to chaining the last value of previousCliTask will be the final
         // upload task, after which the cleanup can be done
-        previousCliTask.configure { finalizedBy cliCleanUpTask.name }
+        previousCliTask.configure { finalizedBy cliCleanUpTask }
     }
 }
 
